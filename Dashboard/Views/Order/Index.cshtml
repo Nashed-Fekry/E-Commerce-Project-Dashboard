@@ -1,0 +1,63 @@
+﻿
+@model List<OrderDTO>
+@{
+   // ViewData["Title"] = "Index";
+    Layout = "_Layout";
+}
+<div class="mx-3">
+    <table class="table table-striped table-bordered text-center">
+        <thead class=" thead-dark">
+            <tr>
+                <th scope="col">Order Id</th>
+                <th scope="col">User Name</th>
+                <th scope="col">Order Date</th>
+                <th scope="col">Arrival Date</th>
+                <th scope="col">Status</th>
+                <th scope="col">Order Items</th>
+                <th scope="col">Update Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="col">@item.Id</th>
+                    <th scope="col">@item.UserName</th>
+                    <th scope="col">@item.OrderDate</th>
+                    <th scope="col">@item.ArrivalDate</th>
+                    <th scope="col">@item.status.ToString()</th>
+                    <th scope="col"><a class="btn btn-info" asp-action="GetOrderItems" asp-route-id="@item.Id">OrderItems</a></th>
+                    <th scope="col"><a class="btn btn-warning" asp-action="UpadatStatus" asp-route-id="@item.Id">Update Status</a></th>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@section Scripts{
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+	<script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
+    <script>
+        "use strict";
+        var connection = new signalR.HubConnectionBuilder().withUrl("https://localhost:7210/orderHub", {
+            skipNegotiation: true,
+            transport: signalR.HttpTransportType.WebSockets
+        }).build();
+
+        connection.start().then(function () {
+            console.log("Connected to NotificationHub");
+        });
+        connection.on("ReceiveNewOrderNotification", function (id) {
+            console.log(id);
+            $.ajax({
+                url: "http://nashed212-001-site1.atempurl.com/Order",
+                type: 'GET',
+                success: function (data) {
+                    console.log('Success refreshing the page.');
+                },
+                error: function () {
+                    console.log('Error refreshing the page.');
+                }
+            });
+        });
+    </script>
+}
